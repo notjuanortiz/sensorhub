@@ -1,0 +1,8 @@
+[project]
+name = 'service-sensor-management'
+version = '0.0.1'
+description = 'Sensor monitoring and management.'
+dependencies = [
+    'requests',
+    'importlib-metadata; python_version<"3.10"',
+]
