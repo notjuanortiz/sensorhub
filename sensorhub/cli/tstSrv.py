@@ -18,7 +18,7 @@ class exeTCPHandler(socketserver.StreamRequestHandler):
         for message in messages:
             raw_byte_string += message
 
-        sensor_data: Sensor(0) = pickle.loads(raw_byte_string)
+        sensor_data: Sensor() = pickle.loads(raw_byte_string)
         timestamp = datetime.datetime.now()
         print('Message received:', sensor_data)
         print('sensorDATA:\t', sensor_data.name ,'\t', sensor_data.info)
