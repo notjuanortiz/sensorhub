@@ -15,13 +15,12 @@ class exeTCPHandler(socketserver.StreamRequestHandler):
 
     def handle(self):
         while True: 
-            messages = self.connection.recv(300)
+            messages = self.connection.recv(1024)
             #serverTimestamp = datetime.datetime.now()
 
             pkSize = sys.getsizeof(messages)
-            #if (pkSize > 50): print("\nMessage received\nSize of message - ", pkSize)
-            if (pkSize > 50): print("\nSize of received message: ", pkSize,type(messages))
-            else: print("\n\t\tClosing message size\t--\t", pkSize)
+            if (pkSize > 50): print("\nSize of received message: ", pkSize, type(messages))
+            else: print("\n\tClosing message size: ", pkSize, type(messages))
 
             #messages = self.rfile.readlines()
             #raw_byte_string  = b''  
@@ -33,9 +32,9 @@ class exeTCPHandler(socketserver.StreamRequestHandler):
 
             if messages == b'' : break
             sensor_data: Sensor() = pickle.loads(messages)
-            print('Message content: ', sensor_data.name,\
+            print('Sensor() content: ', sensor_data.name,\
                   '\t', sensor_data.info, '\t', sensor_data.time)
-        print("\t[ Done with messages from:\t", sensor_data.name, " ]\n")
+        print("\t[ Done with messages from: ", sensor_data.name, " ]\n")
             
 def main():
     # server
