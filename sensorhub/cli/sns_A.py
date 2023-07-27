@@ -1,3 +1,4 @@
+import datetime
 import socket 
 import random
 import pickle
@@ -10,6 +11,7 @@ print ("test\n\n")
 class Sensor:
     info : -100 
     name : "name"
+    time : None
 
 def start_client(name):
 
@@ -20,30 +22,27 @@ def start_client(name):
        startTime = time.process_time()
        cycle = 50
        while True:
-           #sock.connect((host, port))
            cycle -= 1
            print("Connected to:", (host, port))
-           #sock.sendall(bytes(outbound_data, 'utf-8'))
     
            temp = random.randint(1,100)
-           data = Sensor(temp, "sensor_"+name)
+           timestamp = datetime.datetime.now()
+           data = Sensor(temp, "sensor_"+name, timestamp)
            print (data.info)
            out_byte_string =  pickle.dumps(data) #"pickled" byte string
 
            #pkSize = sys.getsizeof(out_byte_string)
            #print(pkSize)
            ##sock.send(pkSize) 
-           #time.sleep(0.1)
 
-           sock.sendall(out_byte_string)
            #sock.send(out_byte_string)
+           sock.sendall(out_byte_string)
            print("Message sent:", out_byte_string)
            time.sleep(.1)
            endTime = time.process_time()
            print("\ttime elapsed: ", (endTime - startTime))
            if cycle < 1: break
            if 10000*(endTime - startTime) > 25: break
-           #sock.close()
     
     print("should have sent the \"closing\" message by now -- short timeout after this")
     time.sleep(1)
