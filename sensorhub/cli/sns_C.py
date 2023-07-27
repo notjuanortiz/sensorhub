@@ -18,7 +18,7 @@ def start_client(name):
        sock.connect((host, port))
 
        startTime = time.process_time()
-       cycle = 50 
+       cycle = 50
        while True:
            #sock.connect((host, port))
            cycle -= 1
@@ -38,11 +38,11 @@ def start_client(name):
            sock.sendall(out_byte_string)
            #sock.send(out_byte_string)
            print("Message sent:", out_byte_string)
-           time.sleep(.2)
+           time.sleep(.3)
            endTime = time.process_time()
            print("\ttime elapsed: ", (endTime - startTime))
            if cycle < 1: break
-           if 10000*(endTime - startTime) > 20: break
+           if 10000*(endTime - startTime) > 15: break
            #sock.close()
     
     print("should have sent the \"closing\" message by now -- short timeout after this")
@@ -54,7 +54,7 @@ def start_client(name):
 def main():
 ##    start_client()
 
-    start_client("B")
+    start_client("C")
 
 if __name__ == '__main__':
     main()
