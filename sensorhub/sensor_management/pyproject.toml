@@ -1,8 +1,17 @@
-[project]
-name = 'service-sensor-management'
-version = '0.0.1'
-description = 'Sensor monitoring and management.'
-dependencies = [
-    'requests',
-    'importlib-metadata; python_version<"3.10"',
-]
+[tool.poetry]
+name = "sensor-management"
+version = "0.1.0"
+description = "Sensor management service & API"
+authors = [""]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^2.3.2"
+flask-restful = "^0.3.10"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
