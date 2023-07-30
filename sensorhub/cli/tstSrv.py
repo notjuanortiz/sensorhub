@@ -14,6 +14,8 @@ class exeTCPHandler(socketserver.StreamRequestHandler):
     """Created once per connection to the server"""
 
     def handle(self):
+        print ("\nClient address: ", self.client_address,\
+                "\nConnection details: ", self.connection, )
         while True: 
             messages = self.connection.recv(1024)
             #serverTimestamp = datetime.datetime.now()
@@ -22,19 +24,13 @@ class exeTCPHandler(socketserver.StreamRequestHandler):
             if (pkSize > 50): print("\nSize of received message: ", pkSize, type(messages))
             else: print("\n\tClosing message size: ", pkSize, type(messages))
 
-            #messages = self.rfile.readlines()
-            #raw_byte_string  = b''  
-            #for message in messages:
-            #    raw_byte_string += message
-            #if raw_byte_string == b'' : break
-            #sensor_data: Sensor() = pickle.loads(raw_byte_string)
-            #sensor_data: Sensor() = pickle.loads(messages[0])
+            if messages == b'' :
+                print("\t[ Done with messages from: ", sensor_data.name, " ]\n")
+                break
 
-            if messages == b'' : break
             sensor_data: Sensor() = pickle.loads(messages)
             print('Sensor() content: ', sensor_data.name,\
                   '\t', sensor_data.info, '\t', sensor_data.time)
-        print("\t[ Done with messages from: ", sensor_data.name, " ]\n")
             
 def main():
     # server
