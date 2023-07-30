@@ -57,4 +57,4 @@ def format_rows_as_json(sensors):
 
 
 create_db()
-app.run(host='localhost', port=5000, debug=True)
+app.run(host='0.0.0.0', port=5000, debug=True)

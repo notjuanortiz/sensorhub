@@ -5,11 +5,17 @@ description = "Official API for sensorhub"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+api-script = "sensorhub.api:main"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 flask = "^2.3.2"
 flask-restful = "^0.3.10"
 
+
+[tool.poetry.group.dev.dependencies]
+python-dotenv = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
