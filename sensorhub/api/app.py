@@ -56,4 +56,19 @@ def format_rows_as_json(sensors):
     return json.dumps(sensor_list)
 
 
+@app.route("/json_data", methods=['GET'])
+def get_json_data():
+    with connect_to_db() as connection:
+        connection.row_factory = sqlite3.Row
+        query = "SELECT id, measurement, location FROM sensors"
+        sensors = connection.execute(query).fetchall()
+
+    json_data = []
+    for sensor in sensors:
+        d = dict(zip(sensor.keys(), sensor))
+        json_data.append(d)
+    return json.dumps(json_data), 200
+
+
 create_db()
+app.run(host='localhost', port=5050, debug=True)
