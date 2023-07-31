@@ -53,12 +53,15 @@ def save(sensor: Sensor):
         host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
         port='5432'
     )
+    print('Connected to', connection.host, connection.port)
     cursor = connection.cursor()
 
     query = "INSERT INTO sensors(name, taken_on, measurement) VALUES (?, ?, ?)"
     cursor.execute(query, (sensor.name, sensor.taken_on, sensor.measurement))
     connection.commit()
+
     rows = cursor.execute("SELECT name, taken_on, measurement FROM sensors").fetchall()
+    connection.commit()
     cursor.close()
     print(rows)
     connection.close()
