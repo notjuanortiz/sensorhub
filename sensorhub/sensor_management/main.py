@@ -44,6 +44,7 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
                   '\t', sensor_data.info, '\t', sensor_data.time)
             print('Trying to save:', sensor_data)
             save(sensor_data)
+            print('Sensor:', sensor_data, ' successfully saved')
 
 
 def save(sensor: Sensor):
