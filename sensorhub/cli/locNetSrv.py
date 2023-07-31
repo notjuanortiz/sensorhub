@@ -40,7 +40,6 @@ def main():
     #host, port = 'localhost', 4000
     #host = '127.0.1.1/192.168.50.62'
     host = '192.168.50.62'
-    #host = socket.gethostbyname(socket.gethostname())
     port = 5025
     with socketserver.ThreadingTCPServer((host, port), TCPHandler) \
             as server:

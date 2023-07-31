@@ -41,7 +41,7 @@ def start_client(name, delay_time, readings):
 
 
 def main():
-    start_client(name="Waleed", delay_time=0.5, readings=5)
+    start_client(name="Juan", delay_time=0.5, readings=5)
 
 
 if __name__ == '__main__':
