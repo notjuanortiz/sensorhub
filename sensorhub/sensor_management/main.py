@@ -42,6 +42,7 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
             sensor_data: Sensor() = pickle.loads(messages)
             print('Sensor() content: ', sensor_data.name,
                   '\t', sensor_data.info, '\t', sensor_data.time)
+            print('Trying to save:', sensor_data)
             save(sensor_data)
 
 
