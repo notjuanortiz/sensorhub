@@ -1,19 +1,22 @@
-import csv
+import datetime
 import os
 import pickle
 import socketserver
 import sqlite3
 import sys
 from dataclasses import dataclass
-
+import psycopg2
 from dotenv import load_dotenv
 
 
 @dataclass
 class Sensor:
-    measurement: float = 0.0
-    location: str = None
-    timestamp: str = None
+    name: str = None
+    measurement: int = 0
+    taken_on: datetime = None
+    '''
+    Time the measurement was taken.
+    '''
 
 
 class SensorDataRequestHandler(socketserver.StreamRequestHandler):
@@ -39,33 +42,36 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
             sensor_data: Sensor() = pickle.loads(messages)
             print('Sensor() content: ', sensor_data.name,
                   '\t', sensor_data.info, '\t', sensor_data.time)
-
-
-def write(data, filename: str):
-    if not os.path.exists(filename):
-        open(filename, 'w', newline='')
-
-    with open(filename, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(data)
+            save(sensor_data)
 
 
 def save(sensor: Sensor):
-    connection = sqlite3.connect('database.db')
+    connection = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
+        port='5432'
+    )
     cursor = connection.cursor()
 
-    query = "INSERT INTO sensors(measurement, location) VALUES (?, ?)"
-    cursor.execute(query, (sensor.measurement, sensor.location))
+    query = "INSERT INTO sensors(name, taken_on, measurement) VALUES (?, ?, ?)"
+    cursor.execute(query, (sensor.name, sensor.taken_on, sensor.measurement))
     connection.commit()
-
-    rows = cursor.execute("SELECT id, measurement, location FROM sensors").fetchall()
-    print(rows)
+    rows = cursor.execute("SELECT name, taken_on, measurement FROM sensors").fetchall()
     cursor.close()
+    print(rows)
     connection.close()
 
 
 def load_schema(schema_file):
-    connection = sqlite3.connect('database.db')
+    connection = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
+        port='5432'
+    )
     cursor = connection.cursor()
 
     with open(schema_file, "r") as file:
@@ -82,6 +88,7 @@ def main():
     load_dotenv()
     host: str = os.environ.get('TCP_HOST')
     port: int = int(os.environ.get('TCP_PORT'))
+
     with socketserver.ThreadingTCPServer((host, port), SensorDataRequestHandler) as server:
         print('Sensor management listening on:', (host, port))
         server.serve_forever()

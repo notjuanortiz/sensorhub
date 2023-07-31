@@ -4,14 +4,19 @@ version = "0.1.0"
 description = "Sensor management service & API"
 authors = [""]
 readme = "README.md"
+packages = [{ include = "sensor_management" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 flask = "^2.3.2"
 flask-restful = "^0.3.10"
+postgres = "^4.0"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.0"
+
+[tool.poetry.scripts]
+application = "sensor_management.main:main"
 
 [build-system]
 requires = ["poetry-core"]
