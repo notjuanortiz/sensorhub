@@ -46,19 +46,30 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
 
 
 def save(sensor: Sensor):
-    connection = psycopg2.connect(
-        database="postgres",
-        user="postgres",
-        password="postgres",
-        host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
-        port='5432'
-    )
-    cursor = connection.cursor()
+    sensor_id: int = 0
+    connection = None
+    try:
+        connection = psycopg2.connect(
+            database="postgres",
+            user="postgres",
+            password="postgres",
+            host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
+            port='5432'
+        )
+        cursor = connection.cursor()
 
-    query = "INSERT INTO sensors(time, name, measurement) VALUES (%s, %s, %s)"
-    cursor.execute(query, (sensor.taken_on, sensor.name, sensor.measurement))
-    cursor.close()
-    connection.close()
+        query = "INSERT INTO sensors(time, name, measurement) VALUES (%s, %s, %s)"
+        cursor.execute(query, (sensor.taken_on, sensor.name, sensor.measurement))
+        sensor_id = cursor.fetchone()[0]
+        connection.commit()
+        cursor.close()
+        connection.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if connection is not None:
+            connection.close()
+    return sensor_id
 
 
 def load_schema(schema_file):
