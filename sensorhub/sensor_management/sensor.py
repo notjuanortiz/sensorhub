@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from .storage_connectors import Connector
+from storage_connectors import Connector
 
 
 @dataclass
