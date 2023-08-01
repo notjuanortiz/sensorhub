@@ -1,19 +1,13 @@
-import csv
 import os
 import pickle
 import socketserver
-import sqlite3
 import sys
-from dataclasses import dataclass
 
+import psycopg2
 from dotenv import load_dotenv
 
-
-@dataclass
-class Sensor:
-    measurement: float = 0.0
-    location: str = None
-    timestamp: str = None
+from sensor import Sensor, SensorService
+from storage_connectors import PostgreSQLConnector
 
 
 class SensorDataRequestHandler(socketserver.StreamRequestHandler):
@@ -28,49 +22,35 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
             msg_size = sys.getsizeof(messages)
 
             if messages == b'':
-                print("\n\tClosing message received from: ", self.client_address)
-                print("\tClosing message received: ", messages,
-                      "\t\tMessage size: ", msg_size, type(messages))
-                print("\t[ Done with messages from: ", sensor_data.name, " ]\n")
+                print("\n\tClosing connection from: ", self.client_address)
                 break
 
             print("\nMessage received from: ", self.client_address,
                   "\tMessage size: ", msg_size, type(messages))
-            sensor_data: Sensor() = pickle.loads(messages)
-            print('Sensor() content: ', sensor_data.name,
-                  '\t', sensor_data.info, '\t', sensor_data.time)
+            sensor_data: Sensor = pickle.loads(messages)
 
+            # deserialize sensor (matches clients data structure)
+            sensor_data.measurement = sensor_data.info
+            sensor_data.taken_on = sensor_data.time
+            print(sensor_data)
 
-def write(data, filename: str):
-    if not os.path.exists(filename):
-        open(filename, 'w', newline='')
-
-    with open(filename, 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',')
-        writer.writerow(data)
-
-
-def save(sensor: Sensor):
-    connection = sqlite3.connect('database.db')
-    cursor = connection.cursor()
-
-    query = "INSERT INTO sensors(measurement, location) VALUES (?, ?)"
-    cursor.execute(query, (sensor.measurement, sensor.location))
-    connection.commit()
-
-    rows = cursor.execute("SELECT id, measurement, location FROM sensors").fetchall()
-    print(rows)
-    cursor.close()
-    connection.close()
+            service = SensorService(PostgreSQLConnector())
+            service.save(sensor_data)
 
 
 def load_schema(schema_file):
-    connection = sqlite3.connect('database.db')
+    connection = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
+        port='5432'
+    )
     cursor = connection.cursor()
 
     with open(schema_file, "r") as file:
         schema = file.read()
-    cursor.executescript(schema)
+        cursor.execute(schema)
     connection.commit()
     cursor.close()
     connection.close()
@@ -82,6 +62,7 @@ def main():
     load_dotenv()
     host: str = os.environ.get('TCP_HOST')
     port: int = int(os.environ.get('TCP_PORT'))
+
     with socketserver.ThreadingTCPServer((host, port), SensorDataRequestHandler) as server:
         print('Sensor management listening on:', (host, port))
         server.serve_forever()
