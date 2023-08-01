@@ -36,9 +36,8 @@ class TCPHandler(socketserver.StreamRequestHandler):
 
 
 def main():
-    # server
-    #host, port = 'localhost', 4000
-    #host = '127.0.1.1/192.168.50.62'
+    """server"""
+    #   host, port = 'localhost', 4000
     host = '192.168.50.62'
     port = 5025
     with socketserver.ThreadingTCPServer((host, port), TCPHandler) \

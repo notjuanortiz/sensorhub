@@ -14,17 +14,16 @@ class Sensor:
 
 
 def start_client(name, delay_time, readings):
-    #host, port = 'localhost', 4000
     host, port = '18.117.177.71', 4000
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((host, port))
 
-        print("\nPress ENTER to start data feed.")
+        print("\nConnected to:", (host, port))
+        print("Press ENTER to start data feed.")
         input()  # pauses till some keyboard entry
 
         while True:  # sensor "reading" and sending loop
             readings -= 1
-            print("Connected to:", (host, port))
 
             temp = random.randint(1, 100)
             timestamp = datetime.datetime.now()
