@@ -1,6 +1,7 @@
 import json
 import sqlite3
 
+import psycopg2
 from flask import Flask, redirect
 from flask_restful import Api
 
@@ -8,16 +9,14 @@ app = Flask(__name__)
 api = Api(app)
 
 
-def create_db():
-    with connect_to_db() as connection:
-        with open('schema.sql') as file:
-            connection.executescript(file.read())
-
-        connection.commit()
-
-
 def connect_to_db():
-    connection = sqlite3.connect("database.db")
+    connection = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
+        port='5432'
+    )
     return connection
 
 
@@ -29,19 +28,21 @@ def index():
 @app.route("/sensors/", methods=['GET'])
 def get_sensors():
     with connect_to_db() as connection:
-        connection.row_factory = sqlite3.Row
-        query = "SELECT id, measurement, location FROM sensors"
-        sensors = connection.execute(query).fetchall()
-    return format_rows_as_json(sensors), 200
+        query = "SELECT time, name, measurement FROM sensors"
+        cursor = connection.cursor()
+        cursor.execute(query)
+        sensors = cursor.fetchall()
+    return json.dumps(sensors, indent=4, default=str), 200
 
 
-@app.route("/sensors/<sensor_id>/", methods=['GET'])
-def get_sensor(sensor_id: int):
+@app.route("/sensors/<sensor_name>/", methods=['GET'])
+def get_sensor(sensor_name: str):
     with connect_to_db() as connection:
-        connection.row_factory = sqlite3.Row
-        query = "SELECT id, measurement, location FROM sensors WHERE id = ?"
-        sensor = connection.execute(query, sensor_id).fetchone()
-        return format_row_as_json(sensor), 200
+        cursor = connection.cursor()
+        query = "SELECT time, name, measurement FROM sensors WHERE id = %s"
+        cursor.execute(query, sensor_name)
+        sensor = cursor.fetchone()
+        return json.dumps(sensor, indent=4, default=str), 200
 
 
 def format_row_as_json(sensor):
@@ -54,6 +55,3 @@ def format_rows_as_json(sensors):
         d = dict(zip(sensor.keys(), sensor))
         sensor_list.append(d)
     return json.dumps(sensor_list)
-
-
-create_db()

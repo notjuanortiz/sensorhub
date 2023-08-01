@@ -2,9 +2,9 @@ import datetime
 import os
 import pickle
 import socketserver
-import sqlite3
 import sys
 from dataclasses import dataclass
+
 import psycopg2
 from dotenv import load_dotenv
 
@@ -55,12 +55,9 @@ def save(sensor: Sensor):
     )
     cursor = connection.cursor()
 
-    query = "INSERT INTO sensors(name, taken_on, measurement) VALUES (?, ?, ?)"
-    cursor.execute(query, (sensor.name, sensor.taken_on, sensor.measurement))
-    connection.commit()
-    rows = cursor.execute("SELECT name, taken_on, measurement FROM sensors").fetchall()
+    query = "INSERT INTO sensors(time, name, measurement) VALUES (%s, %s, %s)"
+    cursor.execute(query, (sensor.taken_on, sensor.name, sensor.measurement))
     cursor.close()
-    print(rows)
     connection.close()
 
 
@@ -76,7 +73,7 @@ def load_schema(schema_file):
 
     with open(schema_file, "r") as file:
         schema = file.read()
-    cursor.executescript(schema)
+        cursor.execute(schema)
     connection.commit()
     cursor.close()
     connection.close()

@@ -11,6 +11,7 @@ api-script = "sensorhub.api:__init__"
 python = "^3.9"
 flask = "^2.3.2"
 flask-restful = "^0.3.10"
+postgres = "^4.0"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.0"
