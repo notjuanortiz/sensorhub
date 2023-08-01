@@ -1,22 +1,13 @@
-import datetime
 import os
 import pickle
 import socketserver
 import sys
-from dataclasses import dataclass
 
 import psycopg2
 from dotenv import load_dotenv
 
-
-@dataclass
-class Sensor:
-    name: str = None
-    measurement: int = 0
-    taken_on: datetime = None
-    '''
-    Time the measurement was taken.
-    '''
+from sensorhub import PostgreSQLConnector, Sensor
+from sensorhub.sensor_management import SensorService
 
 
 class SensorDataRequestHandler(socketserver.StreamRequestHandler):
@@ -31,45 +22,20 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
             msg_size = sys.getsizeof(messages)
 
             if messages == b'':
-                print("\n\tClosing message received from: ", self.client_address)
-                print("\tClosing message received: ", messages,
-                      "\t\tMessage size: ", msg_size, type(messages))
-                print("\t[ Done with messages from: ", sensor_data.name, " ]\n")
+                print("\n\tClosing connection from: ", self.client_address)
                 break
 
             print("\nMessage received from: ", self.client_address,
                   "\tMessage size: ", msg_size, type(messages))
-            sensor_data: Sensor() = pickle.loads(messages)
-            print('Sensor() content: ', sensor_data.name,
-                  '\t', sensor_data.info, '\t', sensor_data.time)
-            save(sensor_data)
+            sensor_data: Sensor = pickle.loads(messages)
 
+            # deserialize sensor (matches clients data structure)
+            sensor_data.measurement = sensor_data.info
+            sensor_data.taken_on = sensor_data.time
+            print(sensor_data)
 
-def save(sensor: Sensor):
-    sensor_id: int = 0
-    connection = None
-    try:
-        connection = psycopg2.connect(
-            database="postgres",
-            user="postgres",
-            password="postgres",
-            host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
-            port='5432'
-        )
-        cursor = connection.cursor()
-
-        query = "INSERT INTO sensors(time, name, measurement) VALUES (%s, %s, %s)"
-        cursor.execute(query, (sensor.taken_on, sensor.name, sensor.measurement))
-        sensor_id = cursor.fetchone()[0]
-        connection.commit()
-        cursor.close()
-        connection.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-    finally:
-        if connection is not None:
-            connection.close()
-    return sensor_id
+            service = SensorService(PostgreSQLConnector())
+            service.save(sensor_data)
 
 
 def load_schema(schema_file):
