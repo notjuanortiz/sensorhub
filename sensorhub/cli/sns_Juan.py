@@ -14,7 +14,7 @@ class Sensor:
 
 
 def start_client(name, delay_time, readings):
-    host, port = 'localhost', 4000
+    host, port = '18.117.177.71', 4000
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((host, port))
 
@@ -40,7 +40,7 @@ def start_client(name, delay_time, readings):
 
 
 def main():
-    start_client(name="A", delay_time=0.1, readings=18)
+    start_client(name="Juan", delay_time=0.5, readings=5)
 
 
 if __name__ == '__main__':
