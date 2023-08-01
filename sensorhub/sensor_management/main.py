@@ -6,8 +6,7 @@ import sys
 import psycopg2
 from dotenv import load_dotenv
 
-from sensorhub import PostgreSQLConnector, Sensor
-from sensorhub.sensor_management import SensorService
+from sensorhub.sensor_management import SensorService, PostgreSQLConnector, Sensor
 
 
 class SensorDataRequestHandler(socketserver.StreamRequestHandler):
