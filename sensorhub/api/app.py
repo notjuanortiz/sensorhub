@@ -1,12 +1,11 @@
 import json
-import sqlite3
 
 import psycopg2
 from flask import Flask, redirect
 from flask_restful import Api
 
-app = Flask(__name__)
-api = Api(app)
+application = Flask(__name__)
+api = Api(application)
 
 
 def connect_to_db():
@@ -20,12 +19,12 @@ def connect_to_db():
     return connection
 
 
-@app.route("/")
+@application.route("/")
 def index():
     return redirect("/sensors/")
 
 
-@app.route("/sensors/", methods=['GET'])
+@application.route("/sensors/", methods=['GET'])
 def get_sensors():
     with connect_to_db() as connection:
         query = "SELECT time, name, measurement FROM sensors"
@@ -35,7 +34,7 @@ def get_sensors():
     return json.dumps(sensors, indent=4, default=str), 200
 
 
-@app.route("/sensors/<sensor_name>/", methods=['GET'])
+@application.route("/sensors/<sensor_name>/", methods=['GET'])
 def get_sensor(sensor_name: str):
     with connect_to_db() as connection:
         cursor = connection.cursor()
@@ -45,13 +44,5 @@ def get_sensor(sensor_name: str):
         return json.dumps(sensor, indent=4, default=str), 200
 
 
-def format_row_as_json(sensor):
-    return json.dumps(dict(zip(sensor.keys(), sensor)))
-
-
-def format_rows_as_json(sensors):
-    sensor_list = []
-    for sensor in sensors:
-        d = dict(zip(sensor.keys(), sensor))
-        sensor_list.append(d)
-    return json.dumps(sensor_list)
+if __name__ == "__main__":
+    application.run(host='0.0.0.0', port='5000')
