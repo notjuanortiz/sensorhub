@@ -1,0 +1,7 @@
+services:
+  sensorhub-flask-api:
+    build: sensorhub/api
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./sensorhub/api:/api
