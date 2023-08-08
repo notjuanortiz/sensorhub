@@ -1,6 +1,7 @@
 flask == 2.3.2
 flask-restful == 0.3.10
-postgres == 4.0
+flask-sqlalchemy == 2.3.2
+psycopg == 3.1.10
+psycopg-binary = 3.1.10
+psycopg-pool = 3.1.7
 gunicorn == 21.2.0
-
-

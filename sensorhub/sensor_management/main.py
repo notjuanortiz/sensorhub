@@ -2,6 +2,7 @@ import os
 import pickle
 import socketserver
 import sys
+from datetime import datetime
 
 import psycopg2
 from dotenv import load_dotenv
@@ -9,33 +10,33 @@ from dotenv import load_dotenv
 from sensor import Sensor, SensorService
 from storage_connectors import PostgreSQLConnector
 
+service = SensorService()
+
 
 class SensorDataRequestHandler(socketserver.StreamRequestHandler):
     """Created once per connection to the server"""
     buffer_size = 2048
 
     def handle(self):
-        sensor_data = (None, None, None)
+        sensor = (None, None, None)
         print("\nClient address: ", self.client_address)
         while True:
-            messages = self.connection.recv(1024)
+            messages = self.connection.recv(self.buffer_size)
             msg_size = sys.getsizeof(messages)
 
             if messages == b'':
                 print("\n\tClosing connection from: ", self.client_address)
                 break
 
-            print("\nMessage received from: ", self.client_address,
-                  "\tMessage size: ", msg_size, type(messages))
-            sensor_data: Sensor = pickle.loads(messages)
+            print("\nMessage received from: ", self.client_address)
+
+            sensor: Sensor = pickle.loads(messages)
 
             # deserialize sensor (matches clients data structure)
-            sensor_data.measurement = sensor_data.info
-            sensor_data.taken_on = sensor_data.time
-            print(sensor_data)
-
-            service = SensorService(PostgreSQLConnector())
-            service.save(sensor_data)
+            sensor.measurement = sensor.info
+            sensor.taken_on = sensor.time
+            print("Found:", sensor)
+            service.save(sensor)
 
 
 def load_schema(schema_file):
