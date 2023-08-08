@@ -1,20 +1,22 @@
 import json
 
 import psycopg2
+from dotenv import load_dotenv
 from flask import Flask, redirect
 from flask_restful import Api
+from psycopg2.extras import RealDictCursor
 
+load_dotenv()
 application = Flask(__name__)
 api = Api(application)
 
 
 def connect_to_db():
     connection = psycopg2.connect(
-        database="postgres",
         user="postgres",
         password="postgres",
         host="sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds.amazonaws.com",
-        port='5432'
+        port=5432
     )
     return connection
 
@@ -24,24 +26,36 @@ def index():
     return redirect("/sensors/")
 
 
-@application.route("/sensors/", methods=['GET'])
-def get_sensors():
-    with connect_to_db() as connection:
-        query = "SELECT time, name, measurement FROM sensors"
-        cursor = connection.cursor()
-        cursor.execute(query)
-        sensors = cursor.fetchall()
-    return json.dumps(sensors, indent=4, default=str), 200
+@application.get("/sensors/")
+def get_sensor_list():
+    with connect_to_db() as c:
+        with c.cursor(cursor_factory=RealDictCursor) as cursor:
+            query = """
+                    SELECT
+                        S.sensor_id,
+                        S.sensor_name,
+                        S.manufacturer_id,
+                        CASE WHEN max(SD.sensor_time) >= now() - interval '1 minutes' THEN TRUE ELSE FALSE END AS is_online
+                    FROM
+                        sensors AS S
+                    JOIN
+                        sensor_data AS SD ON S.sensor_id = SD.sensor_id
+                    GROUP BY
+                        S.sensor_id, S.sensor_name, S.manufacturer_id;
+                    """
+            cursor.execute(query)
+            sensors = cursor.fetchall()
+    return json.dumps(sensors, indent=4, separators=(",", ": ")), 200
 
 
-@application.route("/sensors/<sensor_name>/", methods=['GET'])
-def get_sensor(sensor_name: str):
-    with connect_to_db() as connection:
-        cursor = connection.cursor()
-        query = "SELECT time, name, measurement FROM sensors WHERE id = %s"
-        cursor.execute(query, sensor_name)
-        sensor = cursor.fetchone()
-        return json.dumps(sensor, indent=4, default=str), 200
+@application.get("/sensors/<id>/")
+def get_sensor(sensor_id):
+    with connect_to_db() as c:
+        with c.cursor(cursor_factory=RealDictCursor) as cursor:
+            query = "SELECT sensor_id, measurement, sensor_time FROM sensor_data WHERE sensor_id = (%s)"
+            cursor.execute(query, sensor_id)
+            measurements = cursor.fetchall()
+    return json.dumps(measurements, indent=4, separators=(",", ": "), default=str), 200
 
 
 if __name__ == "__main__":

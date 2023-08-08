@@ -1,37 +1,68 @@
+import datetime
+from contextlib import contextmanager
 from dataclasses import dataclass
 
-from storage_connectors import Connector
+import psycopg2
+from psycopg2 import pool
 
 
 @dataclass
 class Sensor:
     name: str = None
     measurement: int = 0
-    taken_on: str = None
+    taken_on: datetime.datetime = None
     '''
     Time the measurement was taken.
     '''
 
 
 class SensorService:
-    repository = None
-
-    def __init__(self, repository: Connector):
-        self.repository = repository
+    def __init__(self):
+        self.pool = psycopg2.pool.ThreadedConnectionPool(1, 3,
+                                                         database='postgres',
+                                                         user='postgres',
+                                                         password='postgres',
+                                                         host='sensorhub-postgresql.c5jrbbbr7rhi.us-east-2.rds'
+                                                              '.amazonaws.com',
+                                                         port='5432'
+                                                         )
         pass
 
-    def save(self, sensor: Sensor):
-        sensor_id: int = 0
+    @contextmanager
+    def get_connection(self):
+        con = self.pool.getconn()
         try:
-            cursor = self.repository.cursor()
-            query = "INSERT INTO sensors(name, measurement) VALUES (%s, %s)"
-            cursor.execute(query, (sensor.name, sensor.measurement))
-            self.repository.commit()
-            cursor.close()
-            self.repository.close()
-        except Exception as error:
-            print(error)
+            yield con
         finally:
-            if self.repository.db_connection is not None:
-                self.repository.close()
-        return sensor_id
+            self.pool.putconn(con)
+
+    def save(self, sensor: Sensor):
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+
+            create_sensor_if_not_found_query = """
+                INSERT INTO 
+                    sensors (sensor_name)
+                SELECT
+                CASE
+                    WHEN EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s) THEN %(name)s
+                    ELSE %(name)s
+                END
+                WHERE NOT EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s);
+            """
+            cursor.execute(create_sensor_if_not_found_query, {'name': sensor.name})
+            conn.commit()
+
+            insert_sensor_data_query = """
+            INSERT INTO
+                sensor_data(sensor_id, measurement)
+            SELECT
+                sensor_id, %s
+            FROM
+                sensors
+            WHERE
+                sensor_name = %s
+            """
+            cursor.execute(insert_sensor_data_query, [sensor.measurement, sensor.name])
+            conn.commit()
+            cursor.close()
