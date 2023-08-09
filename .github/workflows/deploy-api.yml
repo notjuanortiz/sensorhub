@@ -72,11 +72,9 @@ jobs:
           # Build a docker container and
           # push it to ECR so that it can
           # be deployed to ECS.
-          cd /d
+          cd sensorhub/api/
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        with:
-          dockerfile: sensorhub/api/Dockerfile
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
