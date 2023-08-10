@@ -1,0 +1,56 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:040574905257:task-definition/sensorhub-api-container:1",
+    "containerDefinitions": [
+        {
+            "name": "api",
+            "image": "040574905257.dkr.ecr.us-east-2.amazonaws.com/sensorhub/api",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "api-5000-tcp",
+                    "containerPort": 5000,
+                    "hostPort": 5000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/",
+                    "awslogs-region": "us-east-2",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            }
+        }
+    ],
+    "family": "sensorhub-api-container",
+    "taskRoleArn": "arn:aws:iam::040574905257:role/ecsTaskExecutionRole",
+    "executionRoleArn": "arn:aws:iam::040574905257:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "tags": []
+}

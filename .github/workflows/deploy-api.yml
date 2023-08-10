@@ -34,9 +34,9 @@ env:
   AWS_REGION: us-east-2                   # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: sensorhub           # set this to your Amazon ECR repository name
   ECS_CLUSTER: SensorHub-DevCluster                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: task-definition.json # set this to the path to your Amazon ECS task definition
-  # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: sensorhub           # set this to the name of the container in the
+  ECS_TASK_DEFINITION: create-api-container.json # set this to the path to your Amazon ECS task definition
+  # file, e.g. .aws/create-api-container.json
+  CONTAINER_NAME: sensorhub-api          # set this to the name of the container in the
   # containerDefinitions section of your task definition
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: api
         run: |
           # Build a docker container and
           # push it to ECR so that it can
@@ -86,5 +86,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE}}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
