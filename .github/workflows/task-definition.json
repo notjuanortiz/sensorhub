@@ -1,9 +1,9 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-2:040574905257:task-definition/sensorhub-api-container:1",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:040574905257:task-definition/api:2",
     "containerDefinitions": [
         {
-            "name": "create-api-container",
-            "image": "040574905257.dkr.ecr.us-east-2.amazonaws.com/sensorhub/api",
+            "name": "api",
+            "image": "040574905257.dkr.ecr.us-east-2.amazonaws.com/sensorhub",
             "cpu": 0,
             "portMappings": [
                 {
@@ -32,12 +32,42 @@
             }
         }
     ],
-    "family": "sensorhub-api-container",
+    "family": "api",
     "taskRoleArn": "arn:aws:iam::040574905257:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::040574905257:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 1,
+    "revision": 2,
     "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
     "placementConstraints": [],
     "compatibilities": [
         "EC2",
@@ -52,5 +82,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
+    "registeredAt": "2023-08-10T15:22:00.777Z",
+    "registeredBy": "arn:aws:iam::040574905257:root",
     "tags": []
 }
