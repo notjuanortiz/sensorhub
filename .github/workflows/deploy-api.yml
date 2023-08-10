@@ -34,7 +34,7 @@ env:
   AWS_REGION: us-east-2                   # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: sensorhub           # set this to your Amazon ECR repository name
   ECS_CLUSTER: SensorHub-DevCluster                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: create-api-container.json # set this to the path to your Amazon ECS task definition
+  ECS_TASK_DEFINITION: aws/create-api-container.json # set this to the path to your Amazon ECS task definition
   # file, e.g. .aws/create-api-container.json
   CONTAINER_NAME: sensorhub-api          # set this to the name of the container in the
   # containerDefinitions section of your task definition
