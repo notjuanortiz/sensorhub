@@ -2,7 +2,7 @@
     "taskDefinitionArn": "arn:aws:ecs:us-east-2:040574905257:task-definition/api:2",
     "containerDefinitions": [
         {
-            "name": "api",
+            "name": "sensorhub-api-deployment",
             "image": "040574905257.dkr.ecr.us-east-2.amazonaws.com/sensorhub",
             "cpu": 0,
             "portMappings": [
