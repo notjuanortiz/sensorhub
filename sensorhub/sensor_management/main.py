@@ -2,13 +2,11 @@ import os
 import pickle
 import socketserver
 import sys
-from datetime import datetime
 
 import psycopg2
 from dotenv import load_dotenv
 
 from sensor import Sensor, SensorService
-from storage_connectors import PostgreSQLConnector
 
 service = SensorService()
 
