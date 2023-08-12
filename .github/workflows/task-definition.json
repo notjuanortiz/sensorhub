@@ -1,0 +1,62 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:040574905257:task-definition/sensorhub-api-deployment:4",
+    "containerDefinitions": [
+        {
+            "name": "api-container",
+            "image": "040574905257.dkr.ecr.us-east-2.amazonaws.com/sensorhub",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "api-container-5000-tcp",
+                    "containerPort": 5000,
+                    "hostPort": 5000,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": []
+        }
+    ],
+    "family": "sensorhub-api-deployment",
+    "executionRoleArn": "arn:aws:iam::040574905257:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 4,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "2048",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "registeredAt": "2023-08-10T16:02:57.119Z",
+    "registeredBy": "arn:aws:iam::040574905257:root",
+    "tags": []
+}
