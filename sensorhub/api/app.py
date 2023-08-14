@@ -4,14 +4,11 @@ import psycopg2
 from dotenv import load_dotenv
 from flask import Flask, redirect
 from flask_cors import CORS, cross_origin
-from flask_restful import Api
 from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 application = Flask(__name__)
-cors = CORS(application)
-api = Api(application)
-application.config['CORS_HEADERS'] = 'Content-Type'
+CORS(application)
 
 
 def connect_to_db():
@@ -25,13 +22,13 @@ def connect_to_db():
 
 
 @application.route("/")
-@cross_origin()
+@cross_origin(send_wildcard=True)
 def index():
     return redirect("/sensors/")
 
 
 @application.get("/sensors/")
-@cross_origin()
+@cross_origin(send_wildcard=True)
 def get_sensor_list():
     with connect_to_db() as c:
         with c.cursor(cursor_factory=RealDictCursor) as cursor:

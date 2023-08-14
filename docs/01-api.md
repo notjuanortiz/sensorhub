@@ -9,6 +9,11 @@ pip install -r requirements.txt
 ```bash
 python3 app.py
 ```
+3. (Optional) Run using gunicorn, skip 2. While in the api directory:
+
+```bash
+gunicorn --workers=2 --bind 0.0.0.0:5001 app
+```
 
 Alternatively, docker can also be used to get the server running.
 
