@@ -37,7 +37,7 @@ def get_sensor_list():
                         S.sensor_id,
                         S.sensor_name,
                         S.manufacturer_id,
-                        CASE WHEN max(SD.sensor_time) >= now() - interval '10 seconds' THEN TRUE ELSE FALSE END AS is_online
+                        CASE WHEN max(SD.sensor_time) >= now() - interval '5 seconds' THEN TRUE ELSE FALSE END AS is_online
                     FROM
                         sensors AS S
                     JOIN
