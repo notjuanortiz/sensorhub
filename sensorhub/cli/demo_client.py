@@ -2,11 +2,8 @@ import datetime
 import pickle
 import random
 import socket
-import threading
 import time
 from dataclasses import dataclass
-
-terminate = False
 
 
 @dataclass
@@ -17,32 +14,20 @@ class Sensor:
 
 
 def create_sensor_message(sensor_name: str) -> Sensor:
-    random_measurement = random.randint(1, 100)
+    offset = len(sensor_name) % 31
+    random_measurement = random.randint(offset, offset * offset)
     sensor = Sensor(info=random_measurement, name=sensor_name, time=datetime.datetime.now())
     return pickle.dumps(sensor)
 
 
-def user_input_thread():
-    print("Press ENTER to terminate the connection.")
-    input()
-    global terminate
-    terminate = True
-
-
 def main():
-    server_host = 'localhost'
+    # server_host = 'localhost'
+    server_host = '18.118.17.8'
     server_port = 4000
 
     # vars
-    sensor_name = "sensor_abc"
-    interval_in_seconds = 10
-
-    global terminate
-    terminate = False
-
-    # Create nonblocking thread to handle user input
-    input_thread = threading.Thread(target=user_input_thread)
-    input_thread.start()
+    sensor_name = input("Enter a unique sensor name:")
+    interval_in_seconds = int(input("Enter time between messages (in seconds):"))
 
     # Open TCP connection to server
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -50,15 +35,11 @@ def main():
         print("\nConnected to:", (server_host, server_port))
 
         # Continuously send messages until the connection is terminated
-        while not terminate:
+        while True:
             message = create_sensor_message(sensor_name)
             sock.sendall(message)
+            print('Message sent to: ', server_host, ':', server_port)
             time.sleep(interval_in_seconds)
-
-            if terminate:
-                break
-
-        print("Terminating the connection.")
 
 
 if __name__ == '__main__':
