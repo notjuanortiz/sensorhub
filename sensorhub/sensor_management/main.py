@@ -37,14 +37,28 @@ class SensorDataRequestHandler(socketserver.StreamRequestHandler):
                 print("Found:", sensor)
                 service.save(sensor)
         except pickle.UnpicklingError as e:
-            logging.error("Error while unpickling data: %s", e)
+            error_message = "Error in unpickling data: " + str(e)
+            logging.error(error_message)
+            self.send_error_message(error_message)
             self.connection.close()
+
         except psycopg2.Error as e:
-            logging.error("Error while saving data to database: %s", e)
+            error_message = "Error saving data to database: " + str(e)
+            logging.error(error_message)
+            self.send_error_message(error_message)
             self.connection.close()
+
         except Exception as e:
-            logging.error("Unknown error: %s", e)
+            error_message = "Unhandled error: " + str(e)
+            logging.error(error_message)
+            self.send_error_message(error_message)
             self.connection.close()
+
+    def send_error_message(self, message):
+        try:
+            self.connection.sendall(message.encode())
+        except Exception as e:
+            logging.error("Could not send error message to client: %s", e)
 
 
 def load_schema(schema_file):
