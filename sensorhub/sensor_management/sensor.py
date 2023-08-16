@@ -38,31 +38,37 @@ class SensorService:
 
     def save(self, sensor: Sensor):
         with self.get_connection() as conn:
-            cursor = conn.cursor()
+            try:
+                cursor = conn.cursor()
 
-            create_sensor_if_not_found_query = """
-                INSERT INTO 
-                    sensors (sensor_name)
+                create_sensor_if_not_found_query = """
+                    INSERT INTO 
+                        sensors (sensor_name)
+                    SELECT
+                    CASE
+                        WHEN EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s) THEN %(name)s
+                        ELSE %(name)s
+                    END
+                    WHERE NOT EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s);
+                """
+                cursor.execute(create_sensor_if_not_found_query, {'name': sensor.name})
+                conn.commit()
+
+                insert_sensor_data_query = """
+                INSERT INTO
+                    sensor_data(sensor_id, measurement)
                 SELECT
-                CASE
-                    WHEN EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s) THEN %(name)s
-                    ELSE %(name)s
-                END
-                WHERE NOT EXISTS (SELECT 1 FROM sensors WHERE sensor_name = %(name)s);
-            """
-            cursor.execute(create_sensor_if_not_found_query, {'name': sensor.name})
-            conn.commit()
-
-            insert_sensor_data_query = """
-            INSERT INTO
-                sensor_data(sensor_id, measurement)
-            SELECT
-                sensor_id, %s
-            FROM
-                sensors
-            WHERE
-                sensor_name = %s
-            """
-            cursor.execute(insert_sensor_data_query, [sensor.measurement, sensor.name])
-            conn.commit()
-            cursor.close()
+                    sensor_id, %s
+                FROM
+                    sensors
+                WHERE
+                    sensor_name = %s
+                """
+                cursor.execute(insert_sensor_data_query, [sensor.measurement, sensor.name])
+            except psycopg2.Error as e:
+                print("Error executing PostgreSQL query:", e)
+                conn.rollback()
+                raise
+            finally:
+                conn.commit()
+                cursor.close()
