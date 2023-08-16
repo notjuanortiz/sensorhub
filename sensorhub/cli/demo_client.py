@@ -41,6 +41,18 @@ def main():
             print('Message sent to: ', server_host, ':', server_port)
             time.sleep(interval_in_seconds)
 
+            response = sock.recv(2048).decode()
+            if "error" in response:
+                error_type, error_message = response.split(":", 1)
+                if error_type == "ValueError":
+                    print("ValueError on server:", error_message)
+                elif error_type == "DatabaseError":
+                    print("DatabaseError on server:", error_message)
+                elif error_type == "ServerError":
+                    print("ServerError on server:", error_message)
+                else:
+                    print("Unknown error on server:", error_message)
+
 
 if __name__ == '__main__':
     main()
